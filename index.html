@@ -46,19 +46,19 @@
                 ✨ Official Shahhriar Trivia ✨
             </span>
             <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">How Well Do You Know Me?</h1>
-            <p class="text-gray-400 text-sm sm:text-base">Take the 10-question challenge and test your friendship score!</p>
+            <p class="text-gray-400 text-sm sm:text-base">Take the 20-question challenge and test your friendship score!</p>
         </header>
 
-        <!-- ALREADY ATTEMPTED SCREEN -->
+        <!-- ALREADY ATTEMPTED SCREEN (Strict 1 attempt per device lock) -->
         <div id="already-attempted-card" class="glass rounded-3xl p-8 glow text-center hidden">
             <div class="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-5 text-amber-400 text-3xl">
-                ⚠️
+                🔒
             </div>
-            <h2 class="text-2xl font-bold mb-3">Already Submitted!</h2>
-            <p class="text-gray-400 text-sm mb-6">You have already completed this quiz from this device. Each participant is allowed only one attempt.</p>
+            <h2 class="text-2xl font-bold mb-3">Device Locked (One Attempt Only)</h2>
+            <p class="text-gray-400 text-sm mb-4">This device has already been used to submit the quiz by <span id="recorded-name-display" class="font-bold text-indigo-400">Friend</span>.</p>
             <div id="previous-result-box" class="bg-black/40 rounded-2xl p-4 mb-6 border border-white/5">
                 <p class="text-xs text-gray-400 mb-1">Your Recorded Score</p>
-                <p id="prev-score-display" class="text-3xl font-extrabold text-indigo-400">0 / 10</p>
+                <p id="prev-score-display" class="text-3xl font-extrabold text-indigo-400">0 / 20</p>
             </div>
             <button onclick="showLeaderboardView()" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold transition-all shadow-lg shadow-indigo-600/30">
                 View Global Leaderboard 🏆
@@ -73,7 +73,7 @@
             <form id="reg-form" onsubmit="startQuiz(event)" class="space-y-5">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Your Name / Nickname</label>
-                    <input type="text" id="player-name" required placeholder="e.g. Nisa, Sammu, Khushi..." 
+                    <input type="text" id="player-name" required placeholder="Enter your name..." 
                         class="w-full px-4 py-3.5 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors">
                 </div>
 
@@ -99,11 +99,11 @@
         <div id="quiz-card" class="glass rounded-3xl p-6 sm:p-8 glow hidden">
             <!-- Progress Bar -->
             <div class="flex justify-between items-center mb-4 text-xs font-semibold text-gray-400">
-                <span id="question-counter">Question 1 of 10</span>
+                <span id="question-counter">Question 1 of 20</span>
                 <span id="score-counter" class="text-indigo-400">Score: 0</span>
             </div>
             <div class="w-full bg-black/40 h-2 rounded-full mb-6 overflow-hidden">
-                <div id="progress-bar" class="bg-indigo-500 h-full w-[10%] transition-all duration-300"></div>
+                <div id="progress-bar" class="bg-indigo-500 h-full w-[5%] transition-all duration-300"></div>
             </div>
 
             <!-- Question Box -->
@@ -125,12 +125,12 @@
             <div class="w-20 h-20 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center mx-auto mb-5 text-4xl">
                 🏆
             </div>
-            <h2 class="text-2xl font-bold mb-2">Quiz Completed!</h2>
+            <h2 class="text-2xl font-bold mb-2">Quiz Completed, <span id="result-name-span" class="text-indigo-400">Friend</span>!</h2>
             <p id="result-remark" class="text-gray-400 text-sm mb-6">Amazing effort!</p>
 
             <div class="bg-black/40 rounded-2xl p-6 mb-6 border border-white/5">
                 <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Final Score</p>
-                <p id="final-score-display" class="text-4xl font-extrabold text-indigo-400 mb-2">10 / 10</p>
+                <p id="final-score-display" class="text-4xl font-extrabold text-indigo-400 mb-2">20 / 20</p>
                 <p id="score-percentage" class="text-sm text-gray-400">100% Correct Match</p>
             </div>
 
@@ -150,15 +150,15 @@
                 <h2 class="text-xl font-bold flex items-center gap-2">
                     <span>🏆</span> Leaderboard
                 </h2>
-                <button onclick="resetToHome()" class="text-xs text-gray-400 hover:text-white underline">Back to Home</button>
+                <button onclick="backFromLeaderboard()" class="text-xs text-gray-400 hover:text-white underline">Back</button>
             </div>
 
             <div id="leaderboard-list" class="space-y-3 max-h-[350px] overflow-y-auto pr-1 mb-6">
                 <!-- Leaderboard entries -->
             </div>
 
-            <button onclick="resetToHome()" class="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 font-semibold transition-all text-sm">
-                Back to Start
+            <button onclick="backFromLeaderboard()" class="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 font-semibold transition-all text-sm">
+                Back
             </button>
         </div>
 
@@ -171,74 +171,149 @@
 
     <!-- JavaScript Logic -->
     <script>
-        // Quiz Data featuring Shahhriar's exact preferences as the correct answers
-        const quizData = [
+        // 20 Questions based strictly on Shahhriar's profile data
+        const rawQuizData = [
             {
                 question: "What is Shahhriar's absolute favorite food?",
                 options: ["Biriyani", "Pizza & Burger", "Pasta", "Fried Rice"],
-                correct: 0
+                correctAnswer: "Biriyani"
             },
             {
                 question: "What is Shahhriar's favorite thing to do with friends?",
                 options: ["Hanging out & traveling / ghurte jawa", "Playing indoor board games", "Watching movies online", "Studying together"],
-                correct: 0
+                correctAnswer: "Hanging out & traveling / ghurte jawa"
             },
             {
                 question: "What is Shahhriar's ultimate career dream?",
                 options: ["Joining the Bangladesh Army as a commissioned officer", "Becoming a Software Engineer", "Starting a business", "Working in corporate banking"],
-                correct: 0
+                correctAnswer: "Joining the Bangladesh Army as a commissioned officer"
             },
             {
                 question: "If army doesn't work out, what is Shahhriar's backup plan?",
                 options: ["Going abroad for higher studies & settling there", "Doing local university admission", "Starting freelance full-time", "Joining civil service"],
-                correct: 0
+                correctAnswer: "Going abroad for higher studies & settling there"
             },
             {
                 question: "What is Shahhriar's favorite color?",
                 options: ["Black", "Royal Blue", "Crimson Red", "Emerald Green"],
-                correct: 0
+                correctAnswer: "Black"
             },
             {
                 question: "Which animal is Shahhriar's favorite?",
                 options: ["Cat", "Dog", "Eagle", "Lion"],
-                correct: 0
+                correctAnswer: "Cat"
             },
             {
                 question: "What is Shahhriar's dream travel destination country?",
                 options: ["Switzerland", "Canada", "Japan", "United States"],
-                correct: 0
+                correctAnswer: "Switzerland"
             },
             {
                 question: "What musical instrument does Shahhriar play?",
                 options: ["Acoustic Guitar", "Piano / Keyboard", "Ukulele", "Drums"],
-                correct: 0
+                correctAnswer: "Acoustic Guitar"
             },
             {
                 question: "Which games does Shahhriar enjoy playing?",
                 options: ["Free Fire, GTA V & Minecraft", "PUBG Mobile & FIFA", "Call of Duty & Valorant", "Clash of Clans & Among Us"],
-                correct: 0
+                correctAnswer: "Free Fire, GTA V & Minecraft"
             },
             {
                 question: "Where did Shahhriar secure admission for Class 11 after SSC?",
                 options: ["Brahmanbaria United College", "Notre Dame College", "Dhaka College", "Mirpur Cantonment Public College"],
-                correct: 0
+                correctAnswer: "Brahmanbaria United College"
+            },
+            {
+                question: "Which academic stream did Shahhriar study in during SSC?",
+                options: ["Science", "Arts / Humanities", "Commerce", "General Studies"],
+                correctAnswer: "Science"
+            },
+            {
+                question: "What is Shahhriar's confirmed SSC GPA after board re-scrutiny?",
+                options: ["5.00", "4.39", "4.56", "4.80"],
+                correctAnswer: "5.00"
+            },
+            {
+                question: "What processor model powers Shahhriar's laptop?",
+                options: ["Intel Core i5-1235U", "Intel Core i7-13700H", "AMD Ryzen 5 5600H", "Apple M2"],
+                correctAnswer: "Intel Core i5-1235U"
+            },
+            {
+                question: "How much RAM is installed in Shahhriar's laptop?",
+                options: ["16 GB", "8 GB", "32 GB", "4 GB"],
+                correctAnswer: "16 GB"
+            },
+            {
+                question: "What is Shahhriar's mother's profession?",
+                options: ["Government primary school head teacher", "High school science teacher", "University professor", "Bank executive"],
+                correctAnswer: "Government primary school head teacher"
+            },
+            {
+                question: "Which song does Shahhriar particularly enjoy singing or playing?",
+                options: ["Jo Tum Mere Ho", "Believer", "Perfect", "Kesariya"],
+                correctAnswer: "Jo Tum Mere Ho"
+            },
+            {
+                question: "What are Shahhriar's primary personal hobbies?",
+                options: ["Playing video games and drawing art", "Football and photography", "Cooking and cycling", "Reading novels and chess"],
+                correctAnswer: "Playing video games and drawing art"
+            },
+            {
+                question: "Which chord progression does Shahhriar frequently use on guitar?",
+                options: ["A, E, F#m, D", "C, G, Am, F", "G, D, Em, C", "Dm, G, C, Am"],
+                correctAnswer: "A, E, F#m, D"
+            },
+            {
+                question: "Which programming languages or web technologies does Shahhriar explore?",
+                options: ["HTML, CSS, and JavaScript", "Python and Django", "C++ and Unreal Engine", "Java and Kotlin"],
+                correctAnswer: "HTML, CSS, and JavaScript"
+            },
+            {
+                question: "Where does Shahhriar host his custom web projects?",
+                options: ["GitHub Pages", "Vercel", "Netlify", "Firebase Hosting"],
+                correctAnswer: "GitHub Pages"
             }
         ];
 
+        let quizData = [];
         let currentQuestionIndex = 0;
         let score = 0;
         let playerData = { name: '', photo: '😎' };
-        let selectedOptionIndex = null;
         let isAnswerLocked = false;
 
-        // Check localStorage on load
+        // Shuffle array helper
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Prepare quiz data with randomized option indices (Elumelo vabe)
+        function prepareQuiz() {
+            quizData = rawQuizData.map(item => {
+                const shuffledOptions = shuffleArray(item.options);
+                const correctIndex = shuffledOptions.indexOf(item.correctAnswer);
+                return {
+                    question: item.question,
+                    options: shuffledOptions,
+                    correct: correctIndex
+                };
+            });
+        }
+
+        // Strict Check on Page Load
         window.addEventListener('DOMContentLoaded', () => {
-            const savedAttempt = localStorage.getItem('shahhriar_quiz_attempted');
-            if (savedAttempt) {
-                const data = JSON.parse(savedAttempt);
+            prepareQuiz();
+            const savedAttempt = localStorage.getItem('shahhriar_device_attempted');
+            if (savedAttempt === 'true') {
+                const recordData = JSON.parse(localStorage.getItem('shahhriar_last_record') || '{"score": 20, "name": "Friend"}');
                 document.getElementById('reg-card').classList.add('hidden');
                 document.getElementById('already-attempted-card').classList.remove('hidden');
-                document.getElementById('prev-score-display').textContent = `${data.score} / ${quizData.length}`;
+                document.getElementById('recorded-name-display').textContent = recordData.name;
+                document.getElementById('prev-score-display').textContent = `${recordData.score} / ${quizData.length}`;
             }
         });
 
@@ -258,6 +333,11 @@
         // Start Quiz
         function startQuiz(e) {
             e.preventDefault();
+            if (localStorage.getItem('shahhriar_device_attempted') === 'true') {
+                window.location.reload();
+                return;
+            }
+
             const nameInput = document.getElementById('player-name').value.trim();
             if (!nameInput) return;
             playerData.name = nameInput;
@@ -270,7 +350,6 @@
         // Load Question
         function loadQuestion() {
             isAnswerLocked = false;
-            selectedOptionIndex = null;
             document.getElementById('next-btn').classList.add('hidden');
 
             const q = quizData[currentQuestionIndex];
@@ -291,7 +370,7 @@
             });
         }
 
-        // Select Option (Guaranteed correct match for Shahhriar's choices)
+        // Select Option (Shahhriar's choices always correct)
         function selectOption(idx, btnElement) {
             if (isAnswerLocked) return;
             isAnswerLocked = true;
@@ -299,7 +378,6 @@
             const q = quizData[currentQuestionIndex];
             const buttons = document.getElementById('options-container').children;
 
-            // Since user specified "jeigula asnwer disi oigulai jeno r8 answer hoi", index 0 is always correct
             if (idx === q.correct) {
                 btnElement.classList.remove('bg-black/40', 'border-white/10');
                 btnElement.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
@@ -307,7 +385,6 @@
             } else {
                 btnElement.classList.remove('bg-black/40', 'border-white/10');
                 btnElement.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
-                // Highlight correct option (0)
                 buttons[q.correct].classList.remove('bg-black/40', 'border-white/10');
                 buttons[q.correct].classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
             }
@@ -326,10 +403,11 @@
             }
         }
 
-        // Finish Quiz
+        // Finish Quiz & Lock Device Permanently
         function finishQuiz() {
             document.getElementById('quiz-card').classList.add('hidden');
             document.getElementById('result-card').classList.remove('hidden');
+            document.getElementById('result-name-span').textContent = playerData.name;
 
             document.getElementById('final-score-display').textContent = `${score} / ${quizData.length}`;
             const percentage = Math.round((score / quizData.length) * 100);
@@ -340,11 +418,13 @@
             else if (percentage === 100) remark = "Absolute Bestie Status! 100% Match! 🌟";
             document.getElementById('result-remark').textContent = remark;
 
-            // Save to LocalStorage (One attempt rule)
-            const record = { name: playerData.name, photo: playerData.photo, score: score, date: new Date().toLocaleDateString() };
-            localStorage.setItem('shahhriar_quiz_attempted', JSON.stringify(record));
+            // Lock this device permanently
+            localStorage.setItem('shahhriar_device_attempted', 'true');
 
-            // Save to global leaderboard array in localStorage
+            const record = { name: playerData.name, photo: playerData.photo, score: score, date: new Date().toLocaleDateString() };
+            localStorage.setItem('shahhriar_last_record', JSON.stringify(record));
+
+            // Save to global leaderboard
             let leaderboard = JSON.parse(localStorage.getItem('shahhriar_quiz_leaderboard') || '[]');
             leaderboard.push(record);
             leaderboard.sort((a, b) => b.score - a.score);
@@ -376,7 +456,7 @@
                 const item = document.createElement('div');
                 item.className = `flex items-center justify-between p-3.5 rounded-2xl bg-black/40 border border-white/5`;
                 
-                let avatarHtml = `<div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">${entry.name.charAt(0).toUpperCase()}</div>`;
+                let avatarHtml = `<div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">${entry.name ? entry.name.charAt(0).toUpperCase() : 'U'}</div>`;
                 if (entry.photo && entry.photo.startsWith('data:image')) {
                     avatarHtml = `<img src="${entry.photo}" class="w-10 h-10 rounded-xl object-cover shrink-0">`;
                 }
@@ -386,7 +466,7 @@
                         <span class="text-sm font-bold text-gray-400 w-5">#${index + 1}</span>
                         ${avatarHtml}
                         <div>
-                            <p class="font-semibold text-sm">${entry.name}</p>
+                            <p class="font-semibold text-sm">${entry.name || 'Anonymous'}</p>
                             <p class="text-xs text-gray-500">${entry.date || 'Today'}</p>
                         </div>
                     </div>
@@ -398,20 +478,25 @@
             });
         }
 
+        // Back from leaderboard depending on state
+        function backFromLeaderboard() {
+            document.getElementById('leaderboard-card').classList.add('hidden');
+            if (localStorage.getItem('shahhriar_device_attempted') === 'true') {
+                document.getElementById('already-attempted-card').classList.remove('hidden');
+            } else {
+                document.getElementById('reg-card').classList.remove('hidden');
+            }
+        }
+
         // Share Score
         function shareScore() {
-            const text = `I scored ${score}/10 on Shahhriar's Friendship Quiz! Test how well you know him too! 🚀`;
+            const text = `I scored ${score}/20 on Shahhriar's Quiz! Test how well you know him too! 🚀`;
             if (navigator.share) {
                 navigator.share({ title: "Shahhriar's Quiz", text: text, url: window.location.href }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(text);
                 alert("Result copied to clipboard!");
             }
-        }
-
-        // Reset to Home (if needed)
-        function resetToHome() {
-            window.location.reload();
         }
     </script>
 </body>
