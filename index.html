@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Well Do You Know Shahhriar? 🚀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0a0a0c',
+                        cardbg: '#141419',
+                        accent: '#6366f1',
+                        accenthover: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { background: rgba(20, 20, 25, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glow { box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.3); }
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+        .animate-glow { animation: pulseGlow 4s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col items-center justify-center p-4 relative overflow-x-hidden">
+
+    <!-- Background Glow Blobs -->
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none animate-glow"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-glow"></div>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-xl z-10">
+        
+        <!-- HEADER -->
+        <header class="text-center mb-8">
+            <span class="inline-block py-1.5 px-4 rounded-full bg-indigo-500/10 text-indigo-400 font-semibold text-xs tracking-wider uppercase mb-3 border border-indigo-500/20">
+                ✨ Official Shahhriar Trivia ✨
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">How Well Do You Know Me?</h1>
+            <p class="text-gray-400 text-sm sm:text-base">Take the 10-question challenge and test your friendship score!</p>
+        </header>
+
+        <!-- ALREADY ATTEMPTED SCREEN -->
+        <div id="already-attempted-card" class="glass rounded-3xl p-8 glow text-center hidden">
+            <div class="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-5 text-amber-400 text-3xl">
+                ⚠️
+            </div>
+            <h2 class="text-2xl font-bold mb-3">Already Submitted!</h2>
+            <p class="text-gray-400 text-sm mb-6">You have already completed this quiz from this device. Each participant is allowed only one attempt.</p>
+            <div id="previous-result-box" class="bg-black/40 rounded-2xl p-4 mb-6 border border-white/5">
+                <p class="text-xs text-gray-400 mb-1">Your Recorded Score</p>
+                <p id="prev-score-display" class="text-3xl font-extrabold text-indigo-400">0 / 10</p>
+            </div>
+            <button onclick="showLeaderboardView()" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold transition-all shadow-lg shadow-indigo-600/30">
+                View Global Leaderboard 🏆
+            </button>
+        </div>
+
+        <!-- STEP 1: REGISTRATION SCREEN -->
+        <div id="reg-card" class="glass rounded-3xl p-6 sm:p-8 glow">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span>👤</span> Enter Your Details
+            </h2>
+            <form id="reg-form" onsubmit="startQuiz(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Your Name / Nickname</label>
+                    <input type="text" id="player-name" required placeholder="e.g. Nisa, Sammu, Khushi..." 
+                        class="w-full px-4 py-3.5 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Your Profile Picture (Optional)</label>
+                    <div class="flex items-center gap-4">
+                        <div id="avatar-preview" class="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center text-2xl overflow-hidden shrink-0">
+                            😎
+                        </div>
+                        <input type="file" id="player-photo" accept="image/*" onchange="previewAvatar(event)" 
+                            class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20 file:cursor-pointer transition-all">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                    <span>Start Quiz</span>
+                    <span>→</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- STEP 2: QUIZ SCREEN -->
+        <div id="quiz-card" class="glass rounded-3xl p-6 sm:p-8 glow hidden">
+            <!-- Progress Bar -->
+            <div class="flex justify-between items-center mb-4 text-xs font-semibold text-gray-400">
+                <span id="question-counter">Question 1 of 10</span>
+                <span id="score-counter" class="text-indigo-400">Score: 0</span>
+            </div>
+            <div class="w-full bg-black/40 h-2 rounded-full mb-6 overflow-hidden">
+                <div id="progress-bar" class="bg-indigo-500 h-full w-[10%] transition-all duration-300"></div>
+            </div>
+
+            <!-- Question Box -->
+            <h3 id="question-text" class="text-lg sm:text-xl font-bold mb-6 leading-snug">Loading question...</h3>
+
+            <!-- Options Grid -->
+            <div id="options-container" class="space-y-3 mb-6">
+                <!-- Option buttons generated dynamically -->
+            </div>
+
+            <!-- Next Button -->
+            <button id="next-btn" onclick="nextQuestion()" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold transition-all shadow-lg shadow-indigo-600/30 hidden">
+                Next Question ➔
+            </button>
+        </div>
+
+        <!-- STEP 3: RESULTS SCREEN -->
+        <div id="result-card" class="glass rounded-3xl p-6 sm:p-8 glow text-center hidden">
+            <div class="w-20 h-20 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center mx-auto mb-5 text-4xl">
+                🏆
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Quiz Completed!</h2>
+            <p id="result-remark" class="text-gray-400 text-sm mb-6">Amazing effort!</p>
+
+            <div class="bg-black/40 rounded-2xl p-6 mb-6 border border-white/5">
+                <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Final Score</p>
+                <p id="final-score-display" class="text-4xl font-extrabold text-indigo-400 mb-2">10 / 10</p>
+                <p id="score-percentage" class="text-sm text-gray-400">100% Correct Match</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="showLeaderboardView()" class="flex-1 py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold transition-all shadow-lg shadow-indigo-600/30">
+                    Leaderboard 📊
+                </button>
+                <button onclick="shareScore()" class="flex-1 py-4 px-6 rounded-2xl bg-white/10 hover:bg-white/15 font-bold transition-all">
+                    Share Result 🔗
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 4: LEADERBOARD SCREEN -->
+        <div id="leaderboard-card" class="glass rounded-3xl p-6 sm:p-8 glow hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <span>🏆</span> Leaderboard
+                </h2>
+                <button onclick="resetToHome()" class="text-xs text-gray-400 hover:text-white underline">Back to Home</button>
+            </div>
+
+            <div id="leaderboard-list" class="space-y-3 max-h-[350px] overflow-y-auto pr-1 mb-6">
+                <!-- Leaderboard entries -->
+            </div>
+
+            <button onclick="resetToHome()" class="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 font-semibold transition-all text-sm">
+                Back to Start
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-8 text-center text-xs text-gray-500 z-10">
+        Created with ❤️ by Shahhriar
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Quiz Data featuring Shahhriar's exact preferences as the correct answers
+        const quizData = [
+            {
+                question: "What is Shahhriar's absolute favorite food?",
+                options: ["Biriyani", "Pizza & Burger", "Pasta", "Fried Rice"],
+                correct: 0
+            },
+            {
+                question: "What is Shahhriar's favorite thing to do with friends?",
+                options: ["Hanging out & traveling / ghurte jawa", "Playing indoor board games", "Watching movies online", "Studying together"],
+                correct: 0
+            },
+            {
+                question: "What is Shahhriar's ultimate career dream?",
+                options: ["Joining the Bangladesh Army as a commissioned officer", "Becoming a Software Engineer", "Starting a business", "Working in corporate banking"],
+                correct: 0
+            },
+            {
+                question: "If army doesn't work out, what is Shahhriar's backup plan?",
+                options: ["Going abroad for higher studies & settling there", "Doing local university admission", "Starting freelance full-time", "Joining civil service"],
+                correct: 0
+            },
+            {
+                question: "What is Shahhriar's favorite color?",
+                options: ["Black", "Royal Blue", "Crimson Red", "Emerald Green"],
+                correct: 0
+            },
+            {
+                question: "Which animal is Shahhriar's favorite?",
+                options: ["Cat", "Dog", "Eagle", "Lion"],
+                correct: 0
+            },
+            {
+                question: "What is Shahhriar's dream travel destination country?",
+                options: ["Switzerland", "Canada", "Japan", "United States"],
+                correct: 0
+            },
+            {
+                question: "What musical instrument does Shahhriar play?",
+                options: ["Acoustic Guitar", "Piano / Keyboard", "Ukulele", "Drums"],
+                correct: 0
+            },
+            {
+                question: "Which games does Shahhriar enjoy playing?",
+                options: ["Free Fire, GTA V & Minecraft", "PUBG Mobile & FIFA", "Call of Duty & Valorant", "Clash of Clans & Among Us"],
+                correct: 0
+            },
+            {
+                question: "Where did Shahhriar secure admission for Class 11 after SSC?",
+                options: ["Brahmanbaria United College", "Notre Dame College", "Dhaka College", "Mirpur Cantonment Public College"],
+                correct: 0
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let playerData = { name: '', photo: '😎' };
+        let selectedOptionIndex = null;
+        let isAnswerLocked = false;
+
+        // Check localStorage on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedAttempt = localStorage.getItem('shahhriar_quiz_attempted');
+            if (savedAttempt) {
+                const data = JSON.parse(savedAttempt);
+                document.getElementById('reg-card').classList.add('hidden');
+                document.getElementById('already-attempted-card').classList.remove('hidden');
+                document.getElementById('prev-score-display').textContent = `${data.score} / ${quizData.length}`;
+            }
+        });
+
+        // Preview uploaded avatar
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    playerData.photo = e.target.result;
+                    document.getElementById('avatar-preview').innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-2xl">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Start Quiz
+        function startQuiz(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('player-name').value.trim();
+            if (!nameInput) return;
+            playerData.name = nameInput;
+
+            document.getElementById('reg-card').classList.add('hidden');
+            document.getElementById('quiz-card').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // Load Question
+        function loadQuestion() {
+            isAnswerLocked = false;
+            selectedOptionIndex = null;
+            document.getElementById('next-btn').classList.add('hidden');
+
+            const q = quizData[currentQuestionIndex];
+            document.getElementById('question-counter').textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            document.getElementById('score-counter').textContent = `Score: ${score}`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            document.getElementById('question-text').textContent = q.question;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-indigo-500/50 hover:bg-black/60 transition-all font-medium text-sm sm:text-base flex items-center justify-between group`;
+                btn.innerHTML = `<span>${opt}</span><span class="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-xs text-gray-500 group-hover:border-indigo-500 group-hover:text-indigo-400">✓</span>`;
+                btn.onclick = () => selectOption(idx, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        // Select Option (Guaranteed correct match for Shahhriar's choices)
+        function selectOption(idx, btnElement) {
+            if (isAnswerLocked) return;
+            isAnswerLocked = true;
+
+            const q = quizData[currentQuestionIndex];
+            const buttons = document.getElementById('options-container').children;
+
+            // Since user specified "jeigula asnwer disi oigulai jeno r8 answer hoi", index 0 is always correct
+            if (idx === q.correct) {
+                btnElement.classList.remove('bg-black/40', 'border-white/10');
+                btnElement.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                score++;
+            } else {
+                btnElement.classList.remove('bg-black/40', 'border-white/10');
+                btnElement.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+                // Highlight correct option (0)
+                buttons[q.correct].classList.remove('bg-black/40', 'border-white/10');
+                buttons[q.correct].classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+            }
+
+            document.getElementById('score-counter').textContent = `Score: ${score}`;
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        // Next Question or Finish
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        // Finish Quiz
+        function finishQuiz() {
+            document.getElementById('quiz-card').classList.add('hidden');
+            document.getElementById('result-card').classList.remove('hidden');
+
+            document.getElementById('final-score-display').textContent = `${score} / ${quizData.length}`;
+            const percentage = Math.round((score / quizData.length) * 100);
+            document.getElementById('score-percentage').textContent = `${percentage}% Correct Match with Shahhriar`;
+
+            let remark = "You know Shahhriar wonderfully well! 🎉";
+            if (percentage < 50) remark = "Time to catch up with Shahhriar more often! 😉";
+            else if (percentage === 100) remark = "Absolute Bestie Status! 100% Match! 🌟";
+            document.getElementById('result-remark').textContent = remark;
+
+            // Save to LocalStorage (One attempt rule)
+            const record = { name: playerData.name, photo: playerData.photo, score: score, date: new Date().toLocaleDateString() };
+            localStorage.setItem('shahhriar_quiz_attempted', JSON.stringify(record));
+
+            // Save to global leaderboard array in localStorage
+            let leaderboard = JSON.parse(localStorage.getItem('shahhriar_quiz_leaderboard') || '[]');
+            leaderboard.push(record);
+            leaderboard.sort((a, b) => b.score - a.score);
+            localStorage.setItem('shahhriar_quiz_leaderboard', JSON.stringify(leaderboard));
+
+            if (percentage >= 80) {
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            }
+        }
+
+        // Show Leaderboard View
+        function showLeaderboardView() {
+            document.getElementById('reg-card').classList.add('hidden');
+            document.getElementById('already-attempted-card').classList.add('hidden');
+            document.getElementById('result-card').classList.add('hidden');
+            document.getElementById('leaderboard-card').classList.remove('hidden');
+
+            const listContainer = document.getElementById('leaderboard-list');
+            listContainer.innerHTML = '';
+
+            let leaderboard = JSON.parse(localStorage.getItem('shahhriar_quiz_leaderboard') || '[]');
+
+            if (leaderboard.length === 0) {
+                listContainer.innerHTML = `<p class="text-center text-gray-500 py-6 text-sm">No participants yet. Be the first!</p>`;
+                return;
+            }
+
+            leaderboard.forEach((entry, index) => {
+                const item = document.createElement('div');
+                item.className = `flex items-center justify-between p-3.5 rounded-2xl bg-black/40 border border-white/5`;
+                
+                let avatarHtml = `<div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">${entry.name.charAt(0).toUpperCase()}</div>`;
+                if (entry.photo && entry.photo.startsWith('data:image')) {
+                    avatarHtml = `<img src="${entry.photo}" class="w-10 h-10 rounded-xl object-cover shrink-0">`;
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-bold text-gray-400 w-5">#${index + 1}</span>
+                        ${avatarHtml}
+                        <div>
+                            <p class="font-semibold text-sm">${entry.name}</p>
+                            <p class="text-xs text-gray-500">${entry.date || 'Today'}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-extrabold text-indigo-400 text-sm">${entry.score} / ${quizData.length}</span>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        // Share Score
+        function shareScore() {
+            const text = `I scored ${score}/10 on Shahhriar's Friendship Quiz! Test how well you know him too! 🚀`;
+            if (navigator.share) {
+                navigator.share({ title: "Shahhriar's Quiz", text: text, url: window.location.href }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(text);
+                alert("Result copied to clipboard!");
+            }
+        }
+
+        // Reset to Home (if needed)
+        function resetToHome() {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
